@@ -54,3 +54,19 @@ async def get_trends(patient_id: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No trends data found for this patient.")
     
     return {"trends": trends}
+
+@router.get("/timeline/{patient_id}")
+async def get_timeline(
+    patient_id: str, 
+    start_date: Optional[datetime] = None, 
+    end_date: Optional[datetime] = None,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Returns a unified timeline of glucose readings and insulin/meal events.
+    """
+    end_ts = end_date or datetime.utcnow()
+    start_ts = start_date or (end_ts - timedelta(hours=24))
+    
+    data = await AnalyticsService.get_timeline(db, patient_id, start_ts, end_ts)
+    return data

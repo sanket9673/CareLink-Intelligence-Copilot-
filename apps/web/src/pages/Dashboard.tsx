@@ -4,12 +4,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, type Variants } from "framer-motion";
 import { InsightSection } from "../components/dashboard/InsightSection";
+import { TimelineChart } from "../components/dashboard/TimelineChart";
 import { usePatientStore } from "../store/usePatientStore";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../services/api";
 import { Users } from "lucide-react";
 
 export const Dashboard = () => {
   const { selectedPatientId } = usePatientStore();
   const { data, isLoading } = useDashboardMetrics(selectedPatientId || "");
+
+  const { data: timelineData, isLoading: timelineLoading } = useQuery({
+    queryKey: ['timeline', selectedPatientId],
+    queryFn: async () => {
+      const res = await api.get(`/analytics/timeline/${selectedPatientId}`);
+      return res.data;
+    },
+    enabled: !!selectedPatientId
+  });
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -112,7 +124,6 @@ export const Dashboard = () => {
       >
         {metrics.map((metric, i) => (
           <motion.div key={i} variants={item}>
-            {/* Apple style: Clean white card, very light border, rounded-3xl */}
             <Card className="bg-white border-slate-100 shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow duration-300">
               <CardHeader className="pb-2 pt-6 px-6">
                 <CardTitle className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
@@ -121,8 +132,8 @@ export const Dashboard = () => {
               </CardHeader>
               <CardContent className="px-6 pb-6">
                 <div className="flex items-baseline space-x-1 mt-1">
-                  {metric.value == null || metric.value === 0 ? (
-                    <span className="text-sm font-medium text-slate-400 mt-2">Waiting for sensor data...</span>
+                  {metric.value == null || (metric.title !== "Avg Glucose" && metric.value === 0) ? (
+                    <span className="text-sm font-medium text-slate-400 mt-2">Waiting for data...</span>
                   ) : (
                     <>
                       <span
@@ -136,7 +147,7 @@ export const Dashboard = () => {
                     </>
                   )}
                 </div>
-                {metric.value != null && metric.value !== 0 && (
+                {metric.value != null && (metric.title === "Avg Glucose" || metric.value !== 0) && (
                   <p className="text-xs text-slate-400 mt-2 font-medium">{metric.caption}</p>
                 )}
               </CardContent>
@@ -144,6 +155,17 @@ export const Dashboard = () => {
           </motion.div>
         ))}
       </motion.div>
+
+      {!timelineLoading && timelineData && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm"
+        >
+          <TimelineChart data={timelineData} />
+        </motion.div>
+      )}
 
       <InsightSection patientId={selectedPatientId} />
     </div>
