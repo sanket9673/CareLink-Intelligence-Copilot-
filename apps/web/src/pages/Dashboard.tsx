@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, type Variants } from "framer-motion";
 import { InsightSection } from "../components/dashboard/InsightSection";
+import { usePatientStore } from "../store/usePatientStore";
+import { Users } from "lucide-react";
 
 export const Dashboard = () => {
-  // Hardcoded patientId for scaffolding phase
-  const { data, isLoading } = useDashboardMetrics("patient-123");
+  const { selectedPatientId } = usePatientStore();
+  const { data, isLoading } = useDashboardMetrics(selectedPatientId || "");
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -23,6 +25,22 @@ export const Dashboard = () => {
     hidden: { opacity: 0, y: 15 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } },
   };
+
+  if (!selectedPatientId) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
+        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+          <Users className="w-8 h-8 text-slate-400" />
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold text-slate-900">No Patient Selected</h2>
+          <p className="text-slate-500 mt-2 max-w-sm">
+            Please select a patient from the dropdown above to view their metabolic health dashboard and insights.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -51,28 +69,28 @@ export const Dashboard = () => {
   const metrics = [
     {
       title: "Avg Glucose",
-      value: data?.daily_summary?.avg_glucose,
+      value: data?.daily_summary?.avg_glucose != null ? Number(data.daily_summary.avg_glucose.toFixed(1)) : undefined,
       unit: "mg/dL",
       caption: "Past 24 hours",
-      alert: data?.daily_summary?.avg_glucose && data.daily_summary.avg_glucose > 140,
+      alert: data?.daily_summary?.avg_glucose ? data.daily_summary.avg_glucose > 140 : false,
     },
     {
       title: "Time in Range",
-      value: data?.time_in_range?.percentage_in_range,
+      value: data?.time_in_range?.percentage_in_range != null ? Number(data.time_in_range.percentage_in_range.toFixed(1)) : undefined,
       unit: "%",
       caption: "Target 70 - 180 mg/dL",
       alert: false,
     },
     {
       title: "Total Insulin",
-      value: data?.daily_summary?.total_insulin,
+      value: data?.daily_summary?.total_insulin != null ? Number(data.daily_summary.total_insulin.toFixed(1)) : undefined,
       unit: "U",
       caption: "Basal + Bolus",
       alert: false,
     },
     {
       title: "Carbs Consumed",
-      value: data?.daily_summary?.total_carbs,
+      value: data?.daily_summary?.total_carbs != null ? Number(data.daily_summary.total_carbs.toFixed(1)) : undefined,
       unit: "g",
       caption: "Dietary estimation",
       alert: false,
@@ -127,7 +145,7 @@ export const Dashboard = () => {
         ))}
       </motion.div>
 
-      <InsightSection patientId="patient-123" />
+      <InsightSection patientId={selectedPatientId} />
     </div>
   );
 };

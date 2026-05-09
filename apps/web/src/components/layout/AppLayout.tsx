@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { LayoutDashboard, Menu, User, Activity, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { PatientSelector } from "./PatientSelector";
 
 export const AppLayout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -58,13 +59,17 @@ export const AppLayout = () => {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-        <header className="h-16 flex items-center px-6 shrink-0 bg-slate-50/80 backdrop-blur-md sticky top-0 z-10 border-b border-transparent">
+        <header className="h-16 flex items-center justify-between px-6 shrink-0 bg-slate-50/80 backdrop-blur-md sticky top-0 z-10 border-b border-transparent">
           <button
             onClick={() => setSidebarOpen(!isSidebarOpen)}
             className="p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-200/50 transition-colors"
           >
             <Menu className="w-5 h-5" />
           </button>
+          
+          <div className="flex items-center">
+            <PatientSelector />
+          </div>
         </header>
 
         <div className="flex-1 overflow-auto p-8">

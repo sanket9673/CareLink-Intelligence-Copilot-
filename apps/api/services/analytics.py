@@ -21,6 +21,7 @@ class AnalyticsService:
             func.count(GlucoseReading.id).label("total")
         ).where(
             and_(
+                GlucoseReading.patient_id == patient_id,
                 GlucoseReading.timestamp >= start_date,
                 GlucoseReading.timestamp <= end_date
             )
@@ -34,9 +35,9 @@ class AnalyticsService:
             return None
             
         return {
-            "percentage_in_range": row.in_range or 0.0,
-            "percentage_below": row.below or 0.0,
-            "percentage_above": row.above or 0.0
+            "percentage_in_range": (row.in_range or 0.0) * 100,
+            "percentage_below": (row.below or 0.0) * 100,
+            "percentage_above": (row.above or 0.0) * 100
         }
 
     @staticmethod
@@ -51,6 +52,7 @@ class AnalyticsService:
             func.count(GlucoseReading.id).label("count")
         ).where(
             and_(
+                GlucoseReading.patient_id == patient_id,
                 GlucoseReading.timestamp >= start_ts,
                 GlucoseReading.timestamp <= end_ts
             )
@@ -61,6 +63,7 @@ class AnalyticsService:
             func.sum(InsulinEvent.carbs).label("total_carbs")
         ).where(
             and_(
+                InsulinEvent.patient_id == patient_id,
                 InsulinEvent.timestamp >= start_ts,
                 InsulinEvent.timestamp <= end_ts
             )
@@ -99,6 +102,7 @@ class AnalyticsService:
             func.max(GlucoseReading.value).label("max_glucose")
         ).where(
             and_(
+                GlucoseReading.patient_id == patient_id,
                 GlucoseReading.timestamp >= start_date,
                 GlucoseReading.timestamp <= end_date
             )
@@ -111,6 +115,7 @@ class AnalyticsService:
             func.sum(InsulinEvent.carbs).label("total_carbs")
         ).where(
             and_(
+                InsulinEvent.patient_id == patient_id,
                 InsulinEvent.timestamp >= start_date,
                 InsulinEvent.timestamp <= end_date
             )
@@ -158,3 +163,41 @@ class AnalyticsService:
                 
         sorted_trends = sorted(list(trends_map.values()), key=lambda x: x["date"])
         return sorted_trends
+
+    @staticmethod
+    async def get_timeline(db: AsyncSession, patient_id: str, start_date: datetime, end_date: datetime):
+        glucose_query = select(GlucoseReading.timestamp, GlucoseReading.value).where(
+            and_(
+                GlucoseReading.patient_id == patient_id,
+                GlucoseReading.timestamp >= start_date,
+                GlucoseReading.timestamp <= end_date
+            )
+        ).order_by(GlucoseReading.timestamp)
+
+        events_query = select(InsulinEvent.timestamp, InsulinEvent.event_type, InsulinEvent.units, InsulinEvent.carbs).where(
+            and_(
+                InsulinEvent.patient_id == patient_id,
+                InsulinEvent.timestamp >= start_date,
+                InsulinEvent.timestamp <= end_date,
+                InsulinEvent.event_type.in_(['meal', 'bolus'])
+            )
+        ).order_by(InsulinEvent.timestamp)
+        
+        g_res = await db.execute(glucose_query)
+        e_res = await db.execute(events_query)
+        
+        glucose_data = [{"timestamp": r.timestamp.isoformat(), "value": r.value} for r in g_res.all()]
+        
+        events = []
+        for r in e_res.all():
+            val = r.carbs if r.event_type == 'meal' else r.units
+            events.append({
+                "timestamp": r.timestamp.isoformat(),
+                "type": r.event_type,
+                "value": val
+            })
+            
+        return {
+            "glucose_data": glucose_data,
+            "events": events
+        }
