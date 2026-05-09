@@ -14,3 +14,6 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"message": "Welcome to CareLink Intelligence Copilot API"}
+
+from routes.analytics import router as analytics_router
+app.include_router(analytics_router)
