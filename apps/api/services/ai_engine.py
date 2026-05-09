@@ -18,7 +18,9 @@ class InsightGenerator:
         self.client = Groq(api_key=api_key)
         self.model = "llama-3.3-70b-versatile"
         
-    def generate_insight(self, persona: str, analytics_data: dict) -> InsightResponse:
+    def generate_insight(self, persona: str, analytics_data: dict, history: list = None) -> InsightResponse:
+        if history is None:
+            history = []
         system_prompt = (
             "You are a diabetes intelligence assistant.\n"
             "Be concise, empathetic, and professional.\n"
@@ -45,12 +47,14 @@ class InsightGenerator:
         # Masking actual data in logging to protect PII, logging keys only
         logger.debug(f"Data keys provided for context: {list(analytics_data.keys())}")
         
+        messages = [{"role": "system", "content": system_prompt}]
+        for msg in history:
+            messages.append({"role": msg.role, "content": msg.content})
+        messages.append({"role": "user", "content": user_prompt})
+        
         try:
             chat_completion = self.client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
+                messages=messages,
                 model=self.model,
                 temperature=0.3,
                 response_format={"type": "json_object"}

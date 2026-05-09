@@ -104,7 +104,7 @@ export const Dashboard = () => {
               <CardContent className="px-6 pb-6">
                 <div className="flex items-baseline space-x-1 mt-1">
                   {metric.value == null || metric.value === 0 ? (
-                    <span className="text-sm font-medium text-slate-400 mt-2">No data for this period</span>
+                    <span className="text-sm font-medium text-slate-400 mt-2">Waiting for sensor data...</span>
                   ) : (
                     <>
                       <span

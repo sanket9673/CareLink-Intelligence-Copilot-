@@ -28,6 +28,8 @@ export const useDashboardMetrics = (patientId: string) => {
       const { data } = await api.get(`/analytics/summary/${patientId}`);
       return data;
     },
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
     // Adding some placeholder data in case the backend endpoint isn't fully returning data yet
     initialData: {
       daily_summary: {
