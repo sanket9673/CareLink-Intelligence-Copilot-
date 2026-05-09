@@ -1,0 +1,10 @@
+{
+  "extends": "@carelink/config/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@carelink/types/*": ["./*"]
+    }
+  },
+  "include": ["."]
+}

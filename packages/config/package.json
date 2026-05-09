@@ -1,0 +1,9 @@
+{
+  "name": "@carelink/config",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.js",
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}

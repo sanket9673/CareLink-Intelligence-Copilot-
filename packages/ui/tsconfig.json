@@ -1,0 +1,11 @@
+{
+  "extends": "@carelink/config/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "paths": {
+      "@carelink/ui/*": ["./*"]
+    }
+  },
+  "include": ["."]
+}

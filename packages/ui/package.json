@@ -1,0 +1,15 @@
+{
+  "name": "@carelink/ui",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.tsx",
+  "types": "index.tsx",
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "@types/react": "^18.2.15",
+    "@carelink/config": "*"
+  }
+}
