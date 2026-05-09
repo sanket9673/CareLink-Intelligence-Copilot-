@@ -55,8 +55,8 @@ async def get_trends(patient_id: str, db: AsyncSession = Depends(get_db)):
     
     return {"trends": trends}
 
-@router.get("/patients/{patient_id}/timeline")
-async def get_patient_timeline(
+@router.get("/timeline/{patient_id}")
+async def get_timeline(
     patient_id: str, 
     start_date: Optional[datetime] = None, 
     end_date: Optional[datetime] = None,
@@ -65,7 +65,7 @@ async def get_patient_timeline(
     """
     Returns a unified timeline of glucose readings and insulin/meal events.
     """
-    end_ts = end_date or datetime.now()
+    end_ts = end_date or datetime.utcnow()
     start_ts = start_date or (end_ts - timedelta(hours=24))
     
     data = await AnalyticsService.get_timeline(db, patient_id, start_ts, end_ts)

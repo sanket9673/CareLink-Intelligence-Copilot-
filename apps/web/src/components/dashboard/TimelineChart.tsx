@@ -38,18 +38,26 @@ export const TimelineChart = ({ data }: { data: TimelineData }) => {
     if (active && payload && payload.length) {
       const point = payload[0].payload;
       return (
-        <div className="bg-white p-3 border border-slate-200 shadow-lg rounded-xl text-xs">
-          <p className="text-slate-400 font-medium mb-1">{point.displayTime}</p>
-          <div className="flex items-baseline gap-1 mb-2">
-            <span className="text-lg font-bold text-slate-900">{payload[0].value}</span>
-            <span className="text-slate-400">mg/dL</span>
+        <div className="bg-white/80 backdrop-blur-md p-3 border border-slate-200 shadow-xl rounded-xl text-xs min-w-[140px]">
+          <p className="text-slate-500 font-medium mb-1 border-b border-slate-100 pb-1">{point.displayTime}</p>
+          <div className="flex items-baseline gap-1 my-2">
+            <span className="text-xl font-black text-slate-900">{payload[0].value}</span>
+            <span className="text-slate-400 font-medium text-[10px] uppercase">mg/dL</span>
           </div>
-          {point.events?.map((e: any, idx: number) => (
-            <div key={idx} className="mt-1 px-2 py-1 bg-slate-50 rounded border border-slate-100 flex justify-between gap-4">
-              <span className="capitalize font-semibold text-blue-600">{e.type}</span>
-              <span className="font-mono">{e.value}{e.type === 'meal' ? 'g' : 'u'}</span>
+          {point.events?.length > 0 && (
+            <div className="space-y-1.5 mt-2">
+              {point.events.map((e: any, idx: number) => (
+                <div key={idx} className="px-2 py-1.5 bg-white rounded-lg border border-slate-100 flex justify-between items-center gap-3 shadow-sm">
+                  <span className={`text-[10px] font-bold uppercase tracking-tighter ${e.type === 'meal' ? 'text-amber-600' : 'text-blue-600'}`}>
+                    {e.type}
+                  </span>
+                  <span className="font-mono font-bold text-slate-700">
+                    {e.value}{e.type === 'meal' ? 'g' : 'u'}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       );
     }
@@ -59,14 +67,14 @@ export const TimelineChart = ({ data }: { data: TimelineData }) => {
   return (
     <Card className="border-none shadow-none bg-transparent">
       <CardHeader className="px-0">
-        <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">
-          Glucose & Event Correlation
+        <CardTitle className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+          Glucose & Events Timeline
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-0 h-[300px]">
+      <CardContent className="px-0 h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
-            <CartesianGrid vertical={false} stroke="#f1f5f9" strokeDasharray="4" />
+          <LineChart data={chartData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+            <CartesianGrid vertical={false} stroke="#000" strokeOpacity={0.05} strokeDasharray="3 3" />
             <XAxis 
               dataKey="time"
               type="number"
@@ -76,6 +84,7 @@ export const TimelineChart = ({ data }: { data: TimelineData }) => {
               tickLine={false}
               axisLine={false}
               stroke="#94a3b8"
+              minTickGap={30}
             />
             <YAxis 
               domain={[40, 300]}
@@ -85,24 +94,26 @@ export const TimelineChart = ({ data }: { data: TimelineData }) => {
               stroke="#94a3b8"
               ticks={[70, 180, 250]}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '4 4' }} />
             <Line
               type="monotone"
               dataKey="value"
               stroke="#0f172a"
-              strokeWidth={2}
+              strokeWidth={2.5}
               dot={false}
-              activeDot={{ r: 4, fill: "#0f172a" }}
+              activeDot={{ r: 5, fill: "#0f172a", strokeWidth: 2, stroke: "#fff" }}
+              animationDuration={1000}
             />
             {data.events.map((event, i) => (
               <ReferenceDot
-                key={i}
+                key={`event-${i}`}
                 x={parseISO(event.timestamp).getTime()}
-                y={100}
-                r={4}
+                y={60}
+                r={5}
                 fill={event.type === 'meal' ? "#f59e0b" : "#3b82f6"}
                 stroke="#fff"
                 strokeWidth={2}
+                className="drop-shadow-sm"
               />
             ))}
           </LineChart>

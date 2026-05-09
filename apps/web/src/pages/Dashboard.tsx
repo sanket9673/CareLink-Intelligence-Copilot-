@@ -8,7 +8,9 @@ import { TimelineChart } from "../components/dashboard/TimelineChart";
 import { usePatientStore } from "../store/usePatientStore";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../services/api";
-import { Users } from "lucide-react";
+import { Users, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 export const Dashboard = () => {
   const { selectedPatientId } = usePatientStore();
@@ -17,7 +19,7 @@ export const Dashboard = () => {
   const { data: timelineData, isLoading: timelineLoading } = useQuery({
     queryKey: ['timeline', selectedPatientId],
     queryFn: async () => {
-      const res = await api.get(`/analytics/timeline/${selectedPatientId}`);
+      const res = await api.get(`/analytics/patients/${selectedPatientId}/timeline`);
       return res.data;
     },
     enabled: !!selectedPatientId
@@ -58,8 +60,8 @@ export const Dashboard = () => {
     return (
       <div className="space-y-8 pb-12">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Summary</h1>
-          <p className="text-slate-500 mt-1">Loading your metabolic health overview...</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Summary</h1>
+          <p className="text-slate-500 mt-1 font-medium">Loading metabolic health overview...</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
@@ -110,23 +112,31 @@ export const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-8 pb-12">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Summary</h1>
-        <p className="text-slate-500 mt-1">Your recent metabolic health overview.</p>
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="space-y-8 pb-12"
+    >
+      <div className="flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Clinician Dashboard</h1>
+          <p className="text-slate-500 mt-1 font-mediumToken font-medium">Real-time metabolic overview & AI insights</p>
+        </div>
+        <Link to={`/reports/${selectedPatientId}`}>
+          <Button variant="outline" className="gap-2 border-slate-200 border-2 font-bold uppercase text-[10px] tracking-widest hover:bg-slate-900 hover:text-white transition-all">
+            <FileText size={16} />
+            Generate Report
+          </Button>
+        </Link>
       </div>
 
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {metrics.map((metric, i) => (
           <motion.div key={i} variants={item}>
             <Card className="bg-white border-slate-100 shadow-sm rounded-3xl overflow-hidden hover:shadow-md transition-shadow duration-300">
               <CardHeader className="pb-2 pt-6 px-6">
-                <CardTitle className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
+                <CardTitle className="text-xs font-bold tracking-wider text-slate-400 uppercase">
                   {metric.title}
                 </CardTitle>
               </CardHeader>
@@ -137,24 +147,24 @@ export const Dashboard = () => {
                   ) : (
                     <>
                       <span
-                        className={`text-4xl font-mono tracking-tight font-medium ${
+                        className={`text-4xl font-black tracking-tight ${
                           metric.alert ? "text-amber-600" : "text-slate-900"
                         }`}
                       >
                         {metric.value}
                       </span>
-                      <span className="text-sm font-medium text-slate-400 ml-1">{metric.unit}</span>
+                      <span className="text-xs font-bold text-slate-400 ml-1 uppercase">{metric.unit}</span>
                     </>
                   )}
                 </div>
                 {metric.value != null && (metric.title === "Avg Glucose" || metric.value !== 0) && (
-                  <p className="text-xs text-slate-400 mt-2 font-medium">{metric.caption}</p>
+                  <p className="text-xs text-slate-400 mt-2 font-bold uppercase tracking-tight">{metric.caption}</p>
                 )}
               </CardContent>
             </Card>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
 
       {!timelineLoading && timelineData && (
         <motion.div
@@ -168,6 +178,6 @@ export const Dashboard = () => {
       )}
 
       <InsightSection patientId={selectedPatientId} />
-    </div>
+    </motion.div>
   );
 };

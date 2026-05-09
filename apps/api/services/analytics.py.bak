@@ -186,11 +186,7 @@ class AnalyticsService:
         g_res = await db.execute(glucose_query)
         e_res = await db.execute(events_query)
         
-        raw_glucose = g_res.all()
-        # Optimization: Downsampling if range > 24 hours
-        if (end_date - start_date) > timedelta(hours=24):
-            raw_glucose = raw_glucose[::3]
-        glucose_data = [{"timestamp": r.timestamp.isoformat(), "value": r.value} for r in raw_glucose]
+        glucose_data = [{"timestamp": r.timestamp.isoformat(), "value": r.value} for r in g_res.all()]
         
         events = []
         for r in e_res.all():
@@ -205,4 +201,3 @@ class AnalyticsService:
             "glucose_data": glucose_data,
             "events": events
         }
-

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
 import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
+import { Report } from './pages/Report';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
+        <Route path="/reports/:patientId" element={<Report />} />
       </Routes>
     </BrowserRouter>
   );
