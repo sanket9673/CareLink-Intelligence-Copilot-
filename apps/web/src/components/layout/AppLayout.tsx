@@ -1,56 +1,76 @@
-import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, User } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { LayoutDashboard, Menu, User, Activity, Settings } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const AppLayout = () => {
-  return (
-    <div className="min-h-screen bg-slate-50 flex font-sans">
-      {/* Minimalist Sidebar */}
-      <aside 
-        className="w-20 md:w-64 border-r border-slate-200 bg-white flex flex-col pt-8"
-        aria-label="Sidebar Navigation"
-      >
-        <div className="px-4 md:px-8 mb-12 hidden md:block">
-          <h1 className="text-xl font-semibold tracking-tight text-slate-900">CareLink</h1>
-        </div>
-        
-        <nav className="flex flex-col gap-2 px-3 md:px-6" aria-label="Main Navigation">
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) =>
-              `flex items-center gap-4 px-3 py-3 rounded-2xl transition-colors ${
-                isActive 
-                  ? 'bg-slate-100 text-slate-900 font-medium' 
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-              }`
-            }
-            aria-label="Dashboard"
-          >
-            <LayoutDashboard className="w-5 h-5" />
-            <span className="hidden md:inline">Dashboard</span>
-          </NavLink>
-          
-          <NavLink
-            to="/profile"
-            className={({ isActive }) =>
-              `flex items-center gap-4 px-3 py-3 rounded-2xl transition-colors ${
-                isActive 
-                  ? 'bg-slate-100 text-slate-900 font-medium' 
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-              }`
-            }
-            aria-label="Profile"
-          >
-            <User className="w-5 h-5" />
-            <span className="hidden md:inline">Profile</span>
-          </NavLink>
-        </nav>
-      </aside>
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const location = useLocation();
 
-      {/* Main Content Area */}
-      <main className="flex-1 overflow-auto bg-slate-50">
-        <div className="max-w-7xl mx-auto w-full p-4 md:p-8">
-          <Outlet />
+  const navItems = [
+    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+    { name: "Insights", path: "/insights", icon: Activity },
+    { name: "Profile", path: "/profile", icon: User },
+    { name: "Settings", path: "/settings", icon: Settings },
+  ];
+
+  return (
+    <div className="flex h-screen bg-slate-50 text-slate-900 font-sans overflow-hidden">
+      {/* Sidebar */}
+      <AnimatePresence initial={false}>
+        {isSidebarOpen && (
+          <motion.aside
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 260, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            className="h-full border-r border-slate-100 bg-white flex flex-col shadow-sm z-20 overflow-hidden shrink-0"
+          >
+            <div className="p-6 flex items-center space-x-3">
+              <div className="w-8 h-8 rounded-xl bg-blue-500 flex items-center justify-center shadow-sm">
+                <Activity className="text-white w-5 h-5" />
+              </div>
+              <span className="font-semibold text-lg tracking-tight whitespace-nowrap">CareLink</span>
+            </div>
+
+            <nav className="flex-1 px-4 py-6 space-y-1">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname.includes(item.path);
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    className={`flex items-center space-x-3 px-3 py-2.5 rounded-2xl transition-all duration-200 ${
+                      isActive
+                        ? "bg-slate-100 text-slate-900 font-medium"
+                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    <Icon className="w-5 h-5 shrink-0" strokeWidth={isActive ? 2.5 : 2} />
+                    <span className="whitespace-nowrap">{item.name}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+        <header className="h-16 flex items-center px-6 shrink-0 bg-slate-50/80 backdrop-blur-md sticky top-0 z-10 border-b border-transparent">
+          <button
+            onClick={() => setSidebarOpen(!isSidebarOpen)}
+            className="p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-200/50 transition-colors"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </header>
+
+        <div className="flex-1 overflow-auto p-8">
+          <div className="max-w-6xl mx-auto">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>
