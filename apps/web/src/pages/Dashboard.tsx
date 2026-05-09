@@ -1,13 +1,14 @@
 import React from "react";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
+import { InsightSection } from "../components/dashboard/InsightSection";
 
 export const Dashboard = () => {
   // Hardcoded patientId for scaffolding phase
   const { data, isLoading } = useDashboardMetrics("patient-123");
 
-  const container = {
+  const container: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -17,7 +18,7 @@ export const Dashboard = () => {
     },
   };
 
-  const item = {
+  const item: Variants = {
     hidden: { opacity: 0, y: 15 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } },
   };
@@ -100,6 +101,8 @@ export const Dashboard = () => {
           </motion.div>
         ))}
       </motion.div>
+
+      <InsightSection patientId="patient-123" />
     </div>
   );
 };
