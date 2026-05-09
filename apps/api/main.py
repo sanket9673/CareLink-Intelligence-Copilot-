@@ -16,4 +16,7 @@ def read_root():
     return {"message": "Welcome to CareLink Intelligence Copilot API"}
 
 from routes.analytics import router as analytics_router
+from routes.ai import router as ai_router
+
 app.include_router(analytics_router)
+app.include_router(ai_router)
