@@ -3,8 +3,9 @@ import random
 from datetime import datetime, timedelta
 import os
 
-def generate_mock_csv(file_path, num_rows=100):
-    start_time = datetime.now() - timedelta(days=2)
+def generate_mock_csv(file_path, num_rows=500):
+    end_time = datetime.now()
+    start_time = end_time - timedelta(minutes=15 * num_rows)
     
     # Ensure directory exists
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -37,6 +38,7 @@ def generate_mock_csv(file_path, num_rows=100):
                 
             writer.writerow([timestamp, current_glucose, event_type, value])
 
+    print(f"Data generated for window: {start_time} to {end_time}")
     print(f"Generated {num_rows} rows of mock data at {file_path}")
 
 if __name__ == "__main__":

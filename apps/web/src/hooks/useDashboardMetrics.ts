@@ -17,7 +17,7 @@ interface TimeInRangeSummary {
 }
 
 export interface DashboardMetrics {
-  summary: DailySummary;
+  daily_summary: DailySummary;
   time_in_range: TimeInRangeSummary;
 }
 
@@ -30,7 +30,7 @@ export const useDashboardMetrics = (patientId: string) => {
     },
     // Adding some placeholder data in case the backend endpoint isn't fully returning data yet
     initialData: {
-      summary: {
+      daily_summary: {
         date: new Date().toISOString(),
         avg_glucose: 110,
         min_glucose: 85,

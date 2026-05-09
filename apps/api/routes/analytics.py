@@ -27,9 +27,17 @@ async def get_summary(
     tir = await AnalyticsService.get_time_in_range(db, patient_id, start_date, end_date)
     daily = await AnalyticsService.get_daily_summary(db, patient_id, t_date)
     
-    if not tir and not daily:
-        # Return a structured empty response or 404
-        raise HTTPException(status_code=404, detail="No data found for this patient.")
+    if not tir:
+        tir = {"percentage_in_range": 0.0, "percentage_below": 0.0, "percentage_above": 0.0}
+    if not daily:
+        daily = {
+            "date": t_date,
+            "avg_glucose": None,
+            "min_glucose": None,
+            "max_glucose": None,
+            "total_insulin": 0.0,
+            "total_carbs": 0.0
+        }
         
     return {
         "time_in_range": tir,

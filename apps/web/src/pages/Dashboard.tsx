@@ -33,10 +33,10 @@ export const Dashboard = () => {
   const metrics = [
     {
       title: "Avg Glucose",
-      value: data?.summary.avg_glucose ?? "--",
+      value: data?.daily_summary.avg_glucose ?? "--",
       unit: "mg/dL",
       caption: "Past 24 hours",
-      alert: data?.summary.avg_glucose && data.summary.avg_glucose > 140,
+      alert: data?.daily_summary.avg_glucose && data.daily_summary.avg_glucose > 140,
     },
     {
       title: "Time in Range",
@@ -47,14 +47,14 @@ export const Dashboard = () => {
     },
     {
       title: "Total Insulin",
-      value: data?.summary.total_insulin ?? "--",
+      value: data?.daily_summary.total_insulin ?? "--",
       unit: "U",
       caption: "Basal + Bolus",
       alert: false,
     },
     {
       title: "Carbs Consumed",
-      value: data?.summary.total_carbs ?? "--",
+      value: data?.daily_summary.total_carbs ?? "--",
       unit: "g",
       caption: "Dietary estimation",
       alert: false,
